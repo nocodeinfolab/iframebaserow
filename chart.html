@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Chart from Baserow Data</title>
+</head>
+<body>
+
+    <h2>Chart Display</h2>
+    <iframe id="chartFrame" src="" frameborder="0" width="800" height="800"></iframe>
+
+    <script>
+    async function fetchData() {
+        const limit = 50; 
+        let offset = 0; 
+        let allRows = []; // Array to hold all fetched rows
+
+        while (true) {
+            const response = await fetch(`https://api.baserow.io/api/database/rows/table/359124/?user_field_names=true&limit=${limit}&offset=${offset}`); 
+
+            const data = await response.json();
+            const rows = data.results || [];
+
+            // If no more rows are returned, exit the loop
+            if (rows.length === 0) {
+                break;
+            }
+
+            allRows = allRows.concat(rows); // Concatenate fetched rows to the array
+            offset += limit; // Increment offset for the next request
+        }
+
+        const data1 = allRows.map(row => row.valueField).join(','); // Adjust field names
+        const labels = allRows.map(row => row.labelField).join(','); // Adjust field names
+
+        const chartSrc = `https://quickchart.io/chart-maker/view/zm-e7f9ff40-a9a9-464e-9986-54d1925400ef?data1=${data1}&labels=${labels}`;
+
+        document.getElementById('chartFrame').src = chartSrc;
+    }
+
+    fetchData();
+    </script>
+
+</body>
+</html>
